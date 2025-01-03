@@ -21,10 +21,33 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
     healthcheck:
       test: wget --no-verbose -O /dev/null --tries=1 http://localhost:8000/api/health/check || exit 1
       interval: 10s
       timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  migrations:
+    build:
+      context: ./app
+      dockerfile: ./Dockerfile
+    command: /bin/bash -c "chmod +x /app/scripts/run_migrations.sh && /app/scripts/run_migrations.sh"
+    volumes:
+      - ./app:/app
+    environment:
+      - POSTGRES_USER=testuser
+      - POSTGRES_PASSWORD=testpassword
+      - POSTGRES_DB=vectordb
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+    env_file:
+      - ./.env
+    depends_on:
+      db:
+        condition: service_healthy
 
   mesop-app:
     container_name: mesop
@@ -66,10 +89,11 @@ services:
         reservations:
           memory: 512M
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U testuser -d vectordb"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U testuser -d vectordb && psql -U testuser -d vectordb -c 'SELECT 1'"]
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 10s
 
 volumes:
   postgres_data:

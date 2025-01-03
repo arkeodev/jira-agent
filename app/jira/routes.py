@@ -1,8 +1,9 @@
+"""Routes for Jira-related endpoints."""
 from database import get_db
 from exceptions import JiraAgentError, NoOutputError
 from fastapi import APIRouter, Depends
-from jira import get_all_records, process_jira_request
 from jira.schemas import JiraRequest, JiraRequestCreate, JiraResponse
+from jira.services import get_jira_service
 from logger import log_error, logger
 from sqlalchemy.orm import Session
 
@@ -11,12 +12,26 @@ router = APIRouter(prefix="/api/jira", tags=["Jira"])
 
 @router.post("/agent", response_model=JiraResponse)
 async def jira_agent(
-    request: JiraRequestCreate, db: Session = Depends(get_db)
+    request: JiraRequestCreate,
+    db: Session = Depends(get_db),
 ) -> JiraResponse:
-    """Query the Jira agent"""
+    """Query the Jira agent.
+
+    Args:
+        request: The Jira request to process
+        db: Database session
+
+    Returns:
+        The agent's response
+
+    Raises:
+        JiraAgentError: If processing fails
+        NoOutputError: If no output is produced
+    """
     try:
         logger.info(f"Processing Jira request: {request.request}")
-        if output := await process_jira_request(db, request):
+        service = get_jira_service(db)
+        if output := await service.process_request(request):
             logger.info("Successfully processed Jira request")
             return JiraResponse(output=output)
         raise NoOutputError()
@@ -26,11 +41,24 @@ async def jira_agent(
 
 
 @router.get("/records", response_model=list[JiraRequest])
-async def get_records(db: Session = Depends(get_db)) -> list[JiraRequest]:
-    """Get all Jira request records"""
+async def get_records(
+    db: Session = Depends(get_db),
+) -> list[JiraRequest]:
+    """Get all Jira request records.
+
+    Args:
+        db: Database session
+
+    Returns:
+        List of all Jira request records
+
+    Raises:
+        JiraAgentError: If fetching records fails
+    """
     try:
         logger.info("Fetching all Jira records")
-        records = get_all_records(db)
+        service = get_jira_service(db)
+        records = service.get_all_records()
         logger.info(f"Found {len(records)} records")
         return records
     except Exception as e:

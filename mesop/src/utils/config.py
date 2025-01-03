@@ -3,7 +3,7 @@ import os
 import mesop as me
 
 PROJECT_KEY = os.environ.get("PROJECT_KEY")
-DOCKER_RUNNING = os.environ.get("DOCKER_RUNNING", False)
+DOCKER_RUNNING = os.environ.get("DOCKER_RUNNING", "false").lower() == "true"
 
 EXAMPLE_PROMPTS = [
     f"How many tasks are in status 'DONE' in project {PROJECT_KEY}?",

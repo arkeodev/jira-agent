@@ -9,7 +9,9 @@ from sqlalchemy.orm import Session, sessionmaker
 POSTGRES_USER = os.getenv("POSTGRES_USER", "testuser")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "testpassword")
 POSTGRES_DB = os.getenv("POSTGRES_DB", "vectordb")
-DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@db:5432/{POSTGRES_DB}"
+DATABASE_URL = (
+    f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@db:5432/{POSTGRES_DB}"
+)
 
 # Create SQLAlchemy engine
 engine = create_engine(DATABASE_URL)
@@ -24,3 +26,8 @@ def get_db() -> Generator[Session, None, None]:
         yield db
     finally:
         db.close()
+
+
+def create_tables() -> None:
+    """Create all database tables."""
+    Base.metadata.create_all(bind=engine)
