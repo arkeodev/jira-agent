@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: list[str] = ["*"]
 
     # Jira
-    JIRA_BASE_URL: str
+    JIRA_INSTANCE_URL: str
     JIRA_API_TOKEN: str
     JIRA_USERNAME: str
     PROJECT_KEY: str = "KA-01"
