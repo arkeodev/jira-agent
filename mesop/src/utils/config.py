@@ -13,7 +13,7 @@ EXAMPLE_PROMPTS = [
     f"Transition the tasks that are in status 'IN PROGRESS' in project {PROJECT_KEY} to 'DONE'",
 ]
 
-DJANGO_URL = "http://django:8000/" if DOCKER_RUNNING else "http://localhost:8000/"
+BASE_URL = "http://api:8000/" if DOCKER_RUNNING else "http://localhost:8000/"
 
 
 @me.stateclass

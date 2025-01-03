@@ -3,17 +3,18 @@ import json
 import os
 from typing import Any
 
-from langchain.agents import AgentExecutor, create_react_agent
-from langchain.callbacks.base import BaseCallbackHandler
+from langchain.agents import AgentExecutor, create_openai_functions_agent
 from langchain.tools import tool
 from langchain_community.agent_toolkits.jira.toolkit import JiraToolkit
 from langchain_community.utilities.jira import JiraAPIWrapper
+from langchain_core.callbacks import BaseCallbackHandler
+from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.prompts import (
     ChatPromptTemplate,
     FewShotChatMessagePromptTemplate,
     MessagesPlaceholder,
 )
-from langchain_openai import OpenAI
+from langchain_openai import ChatOpenAI
 from logger import logger
 from utils import jira_utils
 
@@ -23,7 +24,8 @@ with open("utils/system_prompts.json") as f:
 with open("utils/example_prompts.json") as f:
     example_prompts = json.load(f)
 
-llm = OpenAI(temperature=0)
+# Initialize the LLM
+llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
 
 
 class LLMTask:
@@ -169,38 +171,33 @@ jira = JiraAPIWrapper()
 toolkit = JiraToolkit.from_jira_api_wrapper(jira)
 tools = toolkit.get_tools() + [triage]
 
+# Get tool names for the prompt
+tool_names = [tool.name for tool in tools]
+
+# Create the prompt for the agent
 prompt = ChatPromptTemplate.from_messages(
     [
-        (
-            "system",
-            """You are a helpful AI assistant that helps with Jira tasks.
-
-Available tools:
-{tools}
-
-Use the following format:
-
-Question: the input question you must answer
-Thought: you should always think about what to do
-Action: the action to take, should be one of [{tool_names}]
-Action Input: the input to the action
-Observation: the result of the action
-... (this Thought/Action/Action Input/Observation can repeat N times)
-Thought: I now know the final answer
-Final Answer: the final answer to the original input question""",
+        SystemMessage(
+            content=(
+                "You are a helpful AI assistant that helps with Jira tasks. "
+                "You have access to tools that can help you interact with Jira. "
+                "Think through each request step by step and use the appropriate tools when needed."
+            )
         ),
-        ("human", "{input}"),
+        HumanMessage(content="{input}"),
         MessagesPlaceholder(variable_name="agent_scratchpad"),
     ]
 )
 
-agent = create_react_agent(llm=llm, tools=tools, prompt=prompt)
+# Initialize the agent with proper configuration
+agent = create_openai_functions_agent(llm=llm, tools=tools, prompt=prompt)
 
 agent_executor = AgentExecutor(
     agent=agent,
     tools=tools,
     verbose=True,
-    max_iterations=5,
-    callbacks=[LoggingCallbackHandler()],
     handle_parsing_errors=True,
+    max_iterations=5,
+    early_stopping_method="generate",
+    callbacks=[LoggingCallbackHandler()],
 )

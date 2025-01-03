@@ -141,10 +141,15 @@ def click_send(e: me.ClickEvent):
     config.State.input = ""
     yield
 
-    if result := api_utils.call_jira_agent(input):
-        config.State.output += result
-    else:
-        me.navigate("/error")
+    try:
+        if result := api_utils.call_jira_agent(input):
+            config.State.output += result
+        else:
+            config.State.output += (
+                f"Request: {input}<br>Error: Failed to get response from agent<br><br>"
+            )
+    except Exception as e:
+        config.State.output += f"Request: {input}<br>Error: {str(e)}<br><br>"
 
     config.State.in_progress = False
     yield
