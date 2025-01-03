@@ -1,0 +1,18 @@
+{
+    "examples_product": [
+        {
+            "input": "<description>As a user, I want to be able to reset my password so that I can regain access to my account if I forget it.</description>",
+            "output": "<user_stories>As a user, I want to:\n1. Request a password reset via email\n2. Receive a password reset link\n3. Set a new password\n4. Log in with my new password</user_stories>\n<acceptance_criteria>1. User can request password reset from login page\n2. Reset link is sent to registered email\n3. Link expires after 24 hours\n4. New password must meet security requirements\n5. User is notified of successful password change</acceptance_criteria>\n<priority>High - This is a critical security feature</priority>\n<thought>This is a standard security feature that should be implemented with best practices for user account management.</thought>"
+        }
+    ],
+    "examples_linking": [
+        {
+            "input": "<ticket1>Implement password reset functionality for user accounts</ticket1><ticket2>Add email notification system for password resets</ticket2>",
+            "output": "<True/>"
+        },
+        {
+            "input": "<ticket1>Update company logo in header</ticket1><ticket2>Fix bug in shopping cart calculation</ticket2>",
+            "output": "<False/>"
+        }
+    ]
+}

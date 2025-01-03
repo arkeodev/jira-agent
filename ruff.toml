@@ -1,0 +1,3 @@
+[lint]
+# Ignore import sorting since we use isort
+ignore = ["I001"]

@@ -1,0 +1,7 @@
+version = 1
+requires-python = "==3.12.8"
+
+[[package]]
+name = "jira-agent-git"
+version = "0.1.0"
+source = { virtual = "." }

@@ -1,0 +1,75 @@
+version: '3.4'
+
+services:
+  api:
+    container_name: fastapi
+    build:
+      context: ./app
+      dockerfile: ./Dockerfile
+    ports:
+      - 8000:8000
+    volumes:
+      - ./app:/app
+      - ./output:/output
+    environment:
+      - DOCKER_RUNNING=true
+      - POSTGRES_USER=testuser
+      - POSTGRES_PASSWORD=testpassword
+      - POSTGRES_DB=vectordb
+    env_file:
+      - ./.env
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: wget --no-verbose -O /dev/null --tries=1 http://localhost:8000/api/health-check || exit 1
+      interval: 10s
+      timeout: 5s
+
+  mesop-app:
+    container_name: mesop
+    build:
+      context: ./mesop
+      dockerfile: ./Dockerfile
+    volumes:
+     - ./mesop/src:/srv/mesop-app/src
+    ports:
+      - 8080:8080
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DOCKER_RUNNING=true
+      - POSTGRES_USER=testuser
+      - POSTGRES_PASSWORD=testpassword
+      - POSTGRES_DB=vectordb
+    depends_on:
+      api:
+        condition: service_healthy
+    env_file:
+      - ./.env
+
+  db:
+    hostname: db
+    image: pgvector/pgvector:pg15
+    ports:
+     - 5432:5432
+    environment:
+      - POSTGRES_USER=testuser
+      - POSTGRES_PASSWORD=testpassword
+      - POSTGRES_DB=vectordb
+      - PGDATA=/var/lib/postgresql/data/
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testuser -d vectordb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

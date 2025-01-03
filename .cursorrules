@@ -1,0 +1,210 @@
+# Python source files
+*.py linguist-language=Python
+*.pyi linguist-language=Python
+
+# Test files
+test_*.py test=true
+*/test/* test=true
+*/tests/* test=true
+
+# Configuration files
+*.yml config=true
+*.yaml config=true
+*.json config=true
+*.toml config=true
+*.ini config=true
+.env* config=true
+
+# Documentation
+*.md documentation=true
+docs/* documentation=true
+
+# Database migrations
+migrations/* database=true
+alembic/* database=true
+
+# Dependencies
+requirements.txt dependencies=true
+poetry.lock dependencies=true
+pyproject.toml dependencies=true
+
+# Docker related
+Dockerfile docker=true
+docker-compose*.yml docker=true
+.dockerignore docker=true
+
+# Git files
+.gitignore git=true
+.git/* git=true
+
+# IDE settings
+.vscode/* ide=true
+.idea/* ide=true
+
+# Build artifacts to ignore
+__pycache__/* ignore=true
+*.pyc ignore=true
+*.pyo ignore=true
+*.pyd ignore=true
+.Python ignore=true
+build/* ignore=true
+develop-eggs/* ignore=true
+dist/* ignore=true
+downloads/* ignore=true
+eggs/* ignore=true
+.eggs/* ignore=true
+lib/* ignore=true
+lib64/* ignore=true
+parts/* ignore=true
+sdist/* ignore=true
+var/* ignore=true
+*.egg-info/* ignore=true
+.installed.cfg ignore=true
+*.egg ignore=true
+.env ignore=true
+.venv/* ignore=true
+venv/* ignore=true
+ENV/* ignore=true
+
+# FastAPI specific guidelines
+You are an expert in Python, FastAPI, and scalable API development.
+
+Key Principles
+- Write concise, technical responses with accurate Python examples
+- Use functional, declarative programming; avoid classes where possible
+- Prefer iteration and modularization over code duplication
+- Use descriptive variable names with auxiliary verbs (e.g., is_active, has_permission)
+- Use lowercase with underscores for directories and files
+- Favor named exports for routes and utility functions
+- Use the Receive an Object, Return an Object (RORO) pattern
+
+Python/FastAPI
+- Use def for pure functions and async def for asynchronous operations
+- Use type hints for all function signatures
+- Prefer Pydantic models over raw dictionaries for input/output validation
+- Follow FastAPI's async-first approach
+
+Exception Handling and Validation
+- Use custom exception classes inheriting from FastAPI's HTTPException
+- Define structured error response models using Pydantic
+- Handle exceptions at the route level with specific error responses
+- Include field-specific error details in validation errors
+- Use early validation in operations
+- Implement proper error logging
+- Chain error handling for nested operations
+- Use appropriate status codes for different error types
+
+Dependencies
+- FastAPI
+- Pydantic
+- Database libraries (SQLAlchemy, asyncpg, etc.)
+- Testing frameworks (pytest, pytest-asyncio)
+
+FastAPI-Specific Guidelines
+- Use functional components and Pydantic models
+- Use declarative route definitions with clear return type annotations
+- Use async def for I/O operations
+- Use lifespan context managers for startup/shutdown
+- Use middleware for cross-cutting concerns
+- Use dependency injection for shared resources
+- Use background tasks for long-running operations
+- Use WebSocket for real-time communication
+
+Performance Optimization
+- Use async operations for I/O-bound tasks
+- Implement appropriate caching strategies
+- Optimize data serialization/deserialization
+- Use lazy loading for large datasets
+- Use connection pooling for databases
+- Use background tasks for heavy computations
+
+Code Structure
+- Organize by domain/feature modules
+- Separate core functionality from feature modules
+- Follow consistent file naming patterns:
+  - models.py: Data models
+  - schemas.py: API schemas
+  - routes.py: Endpoints
+  - dependencies.py: Shared dependencies
+  - services.py: Business logic
+  - repositories.py: Data access
+  - config.py: Configuration
+
+Key Conventions
+1. Use dependency injection for managing state and resources
+2. Follow REST principles for API design
+3. Use async operations appropriately:
+   - Async for I/O operations
+   - Sync for CPU-bound tasks
+   - Use background tasks for long-running operations
+4. Document APIs using OpenAPI/Swagger
+5. Version APIs appropriately
+6. Use environment variables for configuration
+7. Follow security best practices:
+   - Use proper authentication/authorization
+   - Validate all inputs
+   - Sanitize all outputs
+   - Use CORS appropriately
+   - Rate limit where necessary
+
+# Testing Structure
+- Separate unit and integration tests
+- Use fixtures for common test setup
+- Mock external dependencies
+- Test routes, services, and repositories separately
+- Include performance and load tests
+- Test error scenarios and edge cases
+
+# README.md Structure
+1. Project Overview
+   - Clear, concise description of the API's purpose
+   - Key features and capabilities
+   - Technology stack overview
+   - Links to API documentation
+
+2. Business Workflows in the API
+    - Understand the project structure, definitions and requirements
+    - Determine the business workflows in the API
+    - Draw the business workflows in the API using Mermaid diagrams
+
+3. Getting Started
+   - Prerequisites and dependencies
+   - Environment setup instructions
+   - Installation steps
+   - Configuration guide
+
+4. API Documentation
+   - Base URL and versioning information
+   - Authentication methods
+   - Available endpoints overview
+   - Link to detailed API docs (Swagger/ReDoc)
+
+5. Development Setup
+   - Local development instructions
+   - Virtual environment setup
+   - Database setup and migrations
+   - Environment variables configuration
+
+6. Testing
+   - Test suite overview
+   - How to run tests
+   - Test coverage information
+   - Integration test setup
+
+7. Deployment
+   - Deployment prerequisites
+   - Environment-specific configurations
+   - Container setup (if using Docker)
+   - CI/CD pipeline overview
+
+8. Project Structure
+   - Directory layout
+   - Key components explanation
+   - Module organization
+   - Configuration files
+
+9. Maintenance
+   - Health check endpoints
+   - Monitoring setup
+   - Logging configuration
+   - Backup procedures

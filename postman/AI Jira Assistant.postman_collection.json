@@ -1,0 +1,222 @@
+{
+	"info": {
+		"_postman_id": "b7c9e736-fe15-4e13-9b54-0ef9d0e9b5ee",
+		"name": "AI Jira Assistant",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15801702"
+	},
+	"item": [
+		{
+			"name": "Healthcheck",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/api/health/check",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"health",
+						"check"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get records",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/api/jira/records",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"jira",
+						"records"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Call Jira Create Ticket",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"request\": \"Create a new task in project AAT with description 'This is a test'\"}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/jira/agent",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"jira",
+						"agent"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Call Jira In Progress",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"request\": \"What are the tasks that are in status 'IN PROGRESS' in project AAT?\"}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/jira/agent",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"jira",
+						"agent"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Call Jira Done",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"request\": \"How many tasks are in status 'DONE' in project AAT \"}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/jira/agent",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"jira",
+						"agent"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Call Jira Close Tickets",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"request\": \"Transition the tasks that are in status 'IN PROGRESS' in project AAT to 'DONE'\"}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/jira/agent",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"jira",
+						"agent"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Triage Issue",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"request\": \"Triage the issue AAT-19\"}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/jira/agent",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"jira",
+						"agent"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
