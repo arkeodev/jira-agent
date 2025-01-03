@@ -3,11 +3,16 @@ import json
 import os
 from typing import Any
 
-from langchain.agents import AgentType, initialize_agent
+from langchain.agents import AgentExecutor, create_react_agent
+from langchain.callbacks.base import BaseCallbackHandler
 from langchain.tools import tool
 from langchain_community.agent_toolkits.jira.toolkit import JiraToolkit
 from langchain_community.utilities.jira import JiraAPIWrapper
-from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
+from langchain_core.prompts import (
+    ChatPromptTemplate,
+    FewShotChatMessagePromptTemplate,
+    MessagesPlaceholder,
+)
 from langchain_openai import OpenAI
 from logger import logger
 from utils import jira_utils
@@ -50,9 +55,15 @@ class LLMTask:
 
     def run_llm(self, input_text: str) -> str:
         """Run the LLM chain with the given input."""
-        chain = self.construct_prompt() | self.llm
-        result = chain.invoke({"input": input_text})
-        return str(result)
+        try:
+            logger.debug(f"Running LLM with input: {input_text}")
+            chain = self.construct_prompt() | self.llm
+            result = chain.invoke({"input": input_text})
+            logger.debug(f"LLM result: {result}")
+            return str(result)
+        except Exception as e:
+            logger.error(f"Error running LLM: {e}", exc_info=True)
+            raise
 
 
 product_model = LLMTask(
@@ -69,7 +80,9 @@ linking_model = LLMTask(
 
 def check_issue_and_link_helper(args: tuple[str, str, str, str]) -> bool:
     key, data, primary_issue_key, primary_issue_data = args
+    logger.debug(f"Checking issue match between {key} and {primary_issue_key}")
     if key != primary_issue_key and llm_check_ticket_match(primary_issue_data, data):
+        logger.info(f"Found matching issues: {key} and {primary_issue_key}")
         jira_utils.link_jira_issue(primary_issue_key, key)
     return True
 
@@ -123,13 +136,71 @@ def triage(ticket_number: str) -> str:
     return "Task complete"
 
 
+class LoggingCallbackHandler(BaseCallbackHandler):
+    def on_llm_start(self, *args: Any, **kwargs: Any) -> None:
+        logger.debug("Starting LLM")
+
+    def on_llm_end(self, *args: Any, **kwargs: Any) -> None:
+        logger.debug("LLM finished")
+
+    def on_llm_error(self, error: Exception, **kwargs: Any) -> None:
+        logger.error(f"LLM error: {error}")
+
+    def on_chain_start(self, *args: Any, **kwargs: Any) -> None:
+        logger.debug("Starting chain")
+
+    def on_chain_end(self, *args: Any, **kwargs: Any) -> None:
+        logger.debug("Chain finished")
+
+    def on_chain_error(self, error: Exception, **kwargs: Any) -> None:
+        logger.error(f"Chain error: {error}")
+
+    def on_tool_start(self, *args: Any, **kwargs: Any) -> None:
+        logger.debug("Starting tool")
+
+    def on_tool_end(self, *args: Any, **kwargs: Any) -> None:
+        logger.debug("Tool finished")
+
+    def on_tool_error(self, error: Exception, **kwargs: Any) -> None:
+        logger.error(f"Tool error: {error}")
+
+
 jira = JiraAPIWrapper()
 toolkit = JiraToolkit.from_jira_api_wrapper(jira)
-agent = initialize_agent(
-    toolkit.get_tools() + [triage],
-    llm,
-    agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+tools = toolkit.get_tools() + [triage]
+
+prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            """You are a helpful AI assistant that helps with Jira tasks.
+
+Available tools:
+{tools}
+
+Use the following format:
+
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question""",
+        ),
+        ("human", "{input}"),
+        MessagesPlaceholder(variable_name="agent_scratchpad"),
+    ]
+)
+
+agent = create_react_agent(llm=llm, tools=tools, prompt=prompt)
+
+agent_executor = AgentExecutor(
+    agent=agent,
+    tools=tools,
     verbose=True,
     max_iterations=5,
-    return_intermediate_steps=True,
+    callbacks=[LoggingCallbackHandler()],
+    handle_parsing_errors=True,
 )

@@ -6,15 +6,17 @@ from typing import Any
 def setup_logger(name: str) -> logging.Logger:
     """Set up a logger with the specified name"""
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
 
     # Create handlers
     console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.DEBUG)
     file_handler = logging.FileHandler("app.log")
+    file_handler.setLevel(logging.DEBUG)
 
     # Create formatters and add it to handlers
     log_format = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        "%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s"
     )
     console_handler.setFormatter(log_format)
     file_handler.setFormatter(log_format)
