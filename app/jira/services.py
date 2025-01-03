@@ -1,7 +1,7 @@
+from jira.models import JiraRequest
+from jira.schemas import JiraRequest as JiraRequestSchema
+from jira.schemas import JiraRequestCreate
 from logger import logger
-from models import JiraRequest
-from schemas import JiraRequest as JiraRequestSchema
-from schemas import JiraRequestCreate
 from sqlalchemy.orm import Session
 from utils.model_utils import agent_executor
 

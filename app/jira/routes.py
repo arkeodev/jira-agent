@@ -1,9 +1,9 @@
 from database import get_db
 from exceptions import JiraAgentError, NoOutputError
 from fastapi import APIRouter, Depends
+from jira import get_all_records, process_jira_request
+from jira.schemas import JiraRequest, JiraRequestCreate, JiraResponse
 from logger import log_error, logger
-from schemas import JiraRequest, JiraRequestCreate, JiraResponse
-from services import jira_service
 from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/api/jira", tags=["Jira"])
@@ -16,7 +16,7 @@ async def jira_agent(
     """Query the Jira agent"""
     try:
         logger.info(f"Processing Jira request: {request.request}")
-        if output := await jira_service.process_jira_request(db, request):
+        if output := await process_jira_request(db, request):
             logger.info("Successfully processed Jira request")
             return JiraResponse(output=output)
         raise NoOutputError()
@@ -30,7 +30,7 @@ async def get_records(db: Session = Depends(get_db)) -> list[JiraRequest]:
     """Get all Jira request records"""
     try:
         logger.info("Fetching all Jira records")
-        records = jira_service.get_all_records(db)
+        records = get_all_records(db)
         logger.info(f"Found {len(records)} records")
         return records
     except Exception as e:

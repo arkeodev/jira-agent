@@ -1,8 +1,9 @@
 from config import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from health import router as health_router
+from jira import router as jira_router
 from logger import logger
-from routes import health, jira, test
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -20,9 +21,8 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(jira.router)
-app.include_router(test.router)
-app.include_router(health.router)
+app.include_router(jira_router)
+app.include_router(health_router)
 
 
 @app.on_event("startup")

@@ -35,7 +35,7 @@ def get_ticket_data(ticket_number: str) -> tuple[str | None, str | None]:
         return None, None
 
 
-def link_jira_issue(from_issue: str, to_issue: str) -> bool:
+def link_jira_tickets(from_issue: str, to_issue: str) -> bool:
     """Link two Jira issues"""
     try:
         logger.debug(f"Linking issues: {from_issue} -> {to_issue}")

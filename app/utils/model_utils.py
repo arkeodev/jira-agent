@@ -16,7 +16,13 @@ from langchain_core.prompts import (
 )
 from langchain_openai import ChatOpenAI
 from logger import logger
-from utils import jira_utils
+from utils import (
+    add_jira_comment,
+    extract_tag_helper,
+    get_all_tickets,
+    get_ticket_data,
+    link_jira_tickets,
+)
 
 # Load prompts from JSON files
 with open("utils/system_prompts.json") as f:
@@ -85,7 +91,7 @@ def check_issue_and_link_helper(args: tuple[str, str, str, str]) -> bool:
     logger.debug(f"Checking issue match between {key} and {primary_issue_key}")
     if key != primary_issue_key and llm_check_ticket_match(primary_issue_data, data):
         logger.info(f"Found matching issues: {key} and {primary_issue_key}")
-        jira_utils.link_jira_issue(primary_issue_key, key)
+        link_jira_tickets(primary_issue_key, key)
     return True
 
 
@@ -104,7 +110,7 @@ def llm_check_ticket_match(ticket1: str, ticket2: str) -> bool:
     llm_result = linking_model.run_llm(
         f"<ticket1>{ticket1}<ticket1><ticket2>{ticket2}<ticket2>"
     )
-    if (result := jira_utils.extract_tag_helper(llm_result)) and (result == "True"):
+    if (result := extract_tag_helper(llm_result)) and (result == "True"):
         return True
     return False
 
@@ -116,22 +122,22 @@ def user_stories_acceptance_criteria_priority(
         f"<description>{primary_issue_data}<description>"
     ):
         logger.info(f"LLM result: {llm_result}")
-        user_stories = jira_utils.extract_tag_helper(llm_result, "user_stories") or ""
+        user_stories = extract_tag_helper(llm_result, "user_stories") or ""
         acceptance_criteria = (
-            jira_utils.extract_tag_helper(llm_result, "acceptance_criteria") or ""
+            extract_tag_helper(llm_result, "acceptance_criteria") or ""
         )
-        priority = jira_utils.extract_tag_helper(llm_result, "priority") or ""
-        thought = jira_utils.extract_tag_helper(llm_result, "thought") or ""
+        priority = extract_tag_helper(llm_result, "priority") or ""
+        thought = extract_tag_helper(llm_result, "thought") or ""
         comment = f"user_stories: {user_stories}\nacceptance_criteria: {acceptance_criteria}\npriority: {priority}\nthought: {thought}"
-        jira_utils.add_jira_comment(primary_issue_key, comment)
+        add_jira_comment(primary_issue_key, comment)
 
 
 @tool
 def triage(ticket_number: str) -> str:
     """triage a given ticket and link related tickets"""
     ticket_number = str(ticket_number)
-    all_tickets = jira_utils.get_all_tickets()
-    primary_issue_key, primary_issue_data = jira_utils.get_ticket_data(ticket_number)
+    all_tickets = get_all_tickets()
+    primary_issue_key, primary_issue_data = get_ticket_data(ticket_number)
     if primary_issue_key and primary_issue_data:
         find_related_tickets(primary_issue_key, primary_issue_data, all_tickets)
         user_stories_acceptance_criteria_priority(primary_issue_key, primary_issue_data)
