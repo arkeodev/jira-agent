@@ -33,6 +33,29 @@ class JiraService:
         self.db = db
         self.agent = get_jira_agent()
 
+    async def get_projects(self) -> dict[str, str]:
+        """Get all available Jira projects.
+
+        Returns:
+            Dictionary mapping project keys to project names
+
+        Raises:
+            Exception: If fetching projects fails
+        """
+        try:
+            logger.debug("Fetching all Jira projects")
+            jira_tool = self.agent.tools[0]  # JiraTicketTool is the first tool
+            if not hasattr(jira_tool, "get_projects"):
+                raise ValueError("First tool is not a JiraTicketTool")
+            projects = await jira_tool.get_projects()
+            if not isinstance(projects, dict):
+                raise ValueError("Projects must be a dictionary")
+            logger.debug(f"Found {len(projects)} projects: {projects}")
+            return projects
+        except Exception as e:
+            logger.error(f"Error getting projects: {e}", exc_info=True)
+            raise
+
     async def process_request(self, request: JiraRequestCreate) -> Optional[str]:
         """Process a Jira request through the agent and store the result.
 

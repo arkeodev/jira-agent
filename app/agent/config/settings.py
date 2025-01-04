@@ -54,12 +54,14 @@ class Settings(BaseSettings):
     jira_api_token: str = Field(..., description="Jira API token")
     jira_username: str = Field(..., description="Jira username")
     jira_instance_url: str = Field(..., description="Jira instance URL")
+    project_key: str = Field(..., description="Jira project key")
 
     model_config = {
         "env_file": ".env",
         "env_file_encoding": "utf-8",
         "env_nested_delimiter": "__",
         "protected_namespaces": (),
+        "env_prefix": "",  # This allows using environment variables without a prefix
     }
 
 

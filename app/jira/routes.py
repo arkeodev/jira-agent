@@ -10,6 +10,32 @@ from sqlalchemy.orm import Session
 router = APIRouter(prefix="/api/jira", tags=["Jira"])
 
 
+@router.get("/projects")
+async def get_projects(
+    db: Session = Depends(get_db),
+) -> dict[str, str]:
+    """Get all available Jira projects.
+
+    Args:
+        db: Database session
+
+    Returns:
+        Dictionary mapping project keys to project names
+
+    Raises:
+        JiraAgentError: If fetching projects fails
+    """
+    try:
+        logger.info("Fetching all Jira projects")
+        service = get_jira_service(db)
+        projects = await service.get_projects()
+        logger.info(f"Found {len(projects)} projects")
+        return projects
+    except Exception as e:
+        log_error(logger, e)
+        raise JiraAgentError(str(e)) from e
+
+
 @router.post("/agent", response_model=JiraResponse)
 async def jira_agent(
     request: JiraRequestCreate,
