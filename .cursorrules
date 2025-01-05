@@ -1,9 +1,82 @@
+# File Categorization
+
 # Python source files
 
 *.py linguist-language=Python
 *.pyi linguist-language=Python
 
-# Clean Code Guidelines
+# Test files
+
+test_*.py test=true
+*/test/* test=true
+*/tests/* test=true
+
+# Configuration files
+
+*.yml config=true
+*.yaml config=true
+*.json config=true
+*.toml config=true
+*.ini config=true
+.env* config=true
+
+# Documentation
+
+*.md documentation=true
+docs/* documentation=true
+
+# Database migrations
+
+migrations/* database=true
+alembic/* database=true
+
+# Dependencies
+
+requirements.txt dependencies=true
+poetry.lock dependencies=true
+pyproject.toml dependencies=true
+
+# Docker related
+Dockerfile docker=true
+docker-compose*.yml docker=true
+.dockerignore docker=true
+
+# Git files
+.gitignore git=true
+.git/* git=true
+
+# IDE settings
+.vscode/* ide=true
+.idea/* ide=true
+
+# Build artifacts to ignore
+__pycache__/* ignore=true
+*.pyc ignore=true
+*.pyo ignore=true
+*.pyd ignore=true
+.Python ignore=true
+build/* ignore=true
+develop-eggs/* ignore=true
+dist/* ignore=true
+downloads/* ignore=true
+eggs/* ignore=true
+.eggs/* ignore=true
+lib/* ignore=true
+lib64/* ignore=true
+parts/* ignore=true
+sdist/* ignore=true
+var/* ignore=true
+*.egg-info/* ignore=true
+.installed.cfg ignore=true
+*.egg ignore=true
+.env ignore=true
+.venv/* ignore=true
+venv/* ignore=true
+ENV/* ignore=true
+
+# Core Python Guidelines
+
+## Clean Code Guidelines
 
 Core Principle:
 Code should be easily understood by everyone on the team, readable, changeable, extensible, and maintainable.
@@ -76,7 +149,7 @@ Avoid:
 - Needless repetition
 - Opacity (hard to understand)
 
-# Python Style Guidelines
+## Python Style Guidelines
 
 General Principles:
 - Write modern and pythonic code
@@ -115,36 +188,7 @@ Attribute Guidelines:
   - Double leading (__) for private
   - Trailing (_) for Python keyword conflicts
 
-# Third Party Package Guidelines
-
-License Requirements:
-- Acceptable licenses:
-  - Apache
-  - BSD
-  - PSFL (Python Software Foundation License)
-  - MIT
-- Prohibited licenses:
-  - GPL (GNU General Public License)
-- Case-by-case review required:
-  - LGPL (Lesser General Public License)
-  - Any other licenses
-
-Package Selection Criteria:
-- Cross-platform compatibility (OS independent)
-- Active maintenance status
-- Wide community adoption
-- Good documentation
-- Stable release history
-
-Best Practices:
-- Verify licenses during both development and code review
-- Check license on pypi.org before inclusion
-- Consult team lead for non-standard licenses
-- Document package dependencies clearly
-- Monitor for license changes in updates
-- Keep dependency list minimal and focused
-
-# Docstring Guidelines
+## Docstring Guidelines
 
 Usage:
 - Place docstrings BELOW class or function definitions
@@ -170,7 +214,9 @@ Best Practices:
 - Document non-obvious behavior or requirements
 - Consider IDE and documentation tool integration
 
-# Interface and Abstract Class Guidelines
+# Architecture Patterns
+
+## Interface and Abstract Class Guidelines
 
 Interface Conventions:
 - Class name must end in "Interface"
@@ -204,7 +250,7 @@ Implementation Guidelines:
 - Use type hints consistently
 - Avoid complex inheritance hierarchies
 
-# SQLAlchemy Guidelines
+## SQLAlchemy Guidelines
 
 Session Management:
 - Keep session start and end close together
@@ -232,258 +278,9 @@ Best Practices:
 - Commit only after all operations succeed
 - Follow SQLAlchemy's documentation guidelines: https://docs.sqlalchemy.org/en/14/orm/session.html
 
-# Database Persistence Guidelines
+# API-Related Guidelines
 
-Infrastructure Requirements:
-- One database server per environment/cluster
-- No root user access for database operations
-- One database per service with dedicated user
-- Special cases may use separate servers (e.g., Hermes, Keycloak)
-- Use DATABASE_DSN environment variable for credentials
-- Service access limited to its own database
-
-Database Setup Process:
-1. Connect using postgres user via EC2 instance
-2. Create database: `CREATE DATABASE <databasename>;`
-3. Generate secure 32-char password
-4. Create user: `CREATE USER <databasename>user WITH PASSWORD '<password>';`
-5. Grant privileges: `GRANT ALL PRIVILEGES ON DATABASE <databasename> TO <databaseuser>;`
-6. Store credentials in AWS Secrets Manager
-7. Create Kubernetes secret for database DSN
-8. Scale down EC2 instance after setup
-
-Environment-Specific Guidelines:
-DEV:
-- Use dev/db-cluster credentials
-- Store secrets as dev/db-cluster/<databasename>
-- Configure in dev environment namespace
-
-PROD:
-- Use prod/db-cluster/postgres credentials
-- Store secrets as prod/db-cluster/<databasename>
-- Follow strict security protocols
-
-Read-Only User Setup:
-```sql
--- Create read-only user
-CREATE USER <databasename>user_read WITH PASSWORD '<password>';
-
--- Grant current table access
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO <databasename>user_read;
-
--- Grant future table access
-ALTER DEFAULT PRIVILEGES IN SCHEMA public
-   GRANT SELECT ON TABLES TO <databasename>user_read;
-```
-
-Best Practices:
-- Use alembic for schema management
-- Implement proper seeding through migrations
-- Follow principle of least privilege
-- Maintain separate credentials per environment
-- Document database access patterns
-- Regular credential rotation
-- Monitor database access and usage
-
-# Alembic Script Guidelines
-
-Enum Handling:
-- Avoid PostgreSQL enums when possible
-- Prefer plain strings or foreign key references
-- Never import enum classes from source code
-- Use plain strings in migration scripts for version stability
-
-Implementation Rules:
-- Use PostgreSQL-specific Enum class:
-  ```python
-  from sqlalchemy.dialects import postgresql
-  postgresql.ENUM
-  ```
-- Set create_type=False and manage enum creation/deletion explicitly
-- Name enum references with "_reference" suffix when reusing
-- Avoid checkfirst parameter with explicit creation/deletion
-
-Example Usage:
-```python
-from alembic import op
-from sqlalchemy.dialects import postgresql
-
-# Initial enum creation
-my_enum = postgresql.ENUM(
-    "VALUE1",
-    "VALUE2",
-    name="enum_name",
-    create_type=False,
-)
-my_enum.create(op.get_bind())
-
-# Later reference to existing enum
-my_enum_reference = postgresql.ENUM(
-    name="enum_name",
-    create_type=False,
-)
-```
-
-Best Practices:
-- Keep migrations atomic and focused
-- Use explicit enum management
-- Maintain version stability
-- Follow consistent naming patterns
-- Document enum changes clearly
-
-# Test files
-
-test_*.py test=true
-*/test/* test=true
-*/tests/* test=true
-
-# Configuration files
-
-*.yml config=true
-*.yaml config=true
-*.json config=true
-*.toml config=true
-*.ini config=true
-.env* config=true
-
-# Documentation
-
-*.md documentation=true
-docs/* documentation=true
-
-# Database migrations
-
-migrations/* database=true
-alembic/* database=true
-
-# Dependencies
-
-requirements.txt dependencies=true
-poetry.lock dependencies=true
-pyproject.toml dependencies=true
-
-# Docker related
-Dockerfile docker=true
-docker-compose*.yml docker=true
-.dockerignore docker=true
-
-# Git files
-.gitignore git=true
-.git/* git=true
-
-# IDE settings
-.vscode/* ide=true
-.idea/* ide=true
-
-# Build artifacts to ignore
-__pycache__/* ignore=true
-*.pyc ignore=true
-*.pyo ignore=true
-*.pyd ignore=true
-.Python ignore=true
-build/* ignore=true
-develop-eggs/* ignore=true
-dist/* ignore=true
-downloads/* ignore=true
-eggs/* ignore=true
-.eggs/* ignore=true
-lib/* ignore=true
-lib64/* ignore=true
-parts/* ignore=true
-sdist/* ignore=true
-var/* ignore=true
-*.egg-info/* ignore=true
-.installed.cfg ignore=true
-*.egg ignore=true
-.env ignore=true
-.venv/* ignore=true
-venv/* ignore=true
-ENV/* ignore=true
-
-# FastAPI specific guidelines
-You are an expert in Python, FastAPI, and scalable API development.
-
-Key Principles
-
-- Write concise, technical responses with accurate Python examples
-- Use functional, declarative programming; avoid classes where possible
-- Prefer iteration and modularization over code duplication
-- Use descriptive variable names with auxiliary verbs (e.g., is_active, has_permission)
-- Use lowercase with underscores for directories and files
-- Favor named exports for routes and utility functions
-- Use the Receive an Object, Return an Object (RORO) pattern
-
-Python/FastAPI
-
-- Use def for pure functions and async def for asynchronous operations
-- Use type hints for all function signatures
-- Prefer Pydantic models over raw dictionaries for input/output validation
-- Follow FastAPI's async-first approach
-
-Exception Handling and Validation
-
-- Use custom exception classes inheriting from FastAPI's HTTPException
-- Define structured error response models using Pydantic
-- Handle exceptions at the route level with specific error responses
-- Include field-specific error details in validation errors
-- Use early validation in operations
-- Implement proper error logging
-- Chain error handling for nested operations
-- Use appropriate status codes for different error types
-
-Dependencies
-
-- FastAPI
-- Pydantic
-- Database libraries (SQLAlchemy, asyncpg, etc.)
-- Testing frameworks (pytest, pytest-asyncio)
-
-FastAPI-Specific Guidelines
-
-- Use functional components and Pydantic models
-- Use declarative route definitions with clear return type annotations
-- Use async def for I/O operations
-- Use lifespan context managers for startup/shutdown
-- Use middleware for cross-cutting concerns
-- Use dependency injection for shared resources
-- Use background tasks for long-running operations
-- Use WebSocket for real-time communication
-
-Performance Optimization
-
-- Use async operations for I/O-bound tasks
-- Implement appropriate caching strategies
-- Optimize data serialization/deserialization
-- Use lazy loading for large datasets
-- Use connection pooling for databases
-- Use background tasks for heavy computations
-
-Code Structure
-
-- models.py: Data models
-- schemas.py: API schemas
-- routes.py: Endpoints
-- dependencies.py: Shared dependencies
-- services.py: Business logic
-- repositories.py: Data access
-- config.py: Configuration
-
-Key Conventions
-
-1. Use dependency injection for managing state and resources
-2. Use async operations appropriately:
-   - Async for I/O operations
-   - Sync for CPU-bound tasks
-   - Use background tasks for long-running operations
-3. Use environment variables for configuration
-4. Follow security best practices:
-   - Use proper authentication/authorization
-   - Validate all inputs
-   - Sanitize all outputs
-   - Use CORS appropriately
-   - Rate limit where necessary
-
-# API Structure Guidelines
+## API Structure Guidelines
 
 Standard Directory Layout:
 ```
@@ -553,7 +350,7 @@ Route Naming Conventions:
   - `v2/project/archive`
   - `v1/composite-pipeline/fork-from-step`
 
-# API Design Guidelines
+## API Design Guidelines
 
 - Follow command/query separation principle
 - Use POST {version}/{noun}/{verb} or POST {version}/{group}/{noun}/{verb} path schema
@@ -600,7 +397,7 @@ Null Value Handling:
 - Avoid null values except for explicit resets
 - Model resets as explicit commands or in REST endpoints
 
-# API Breaking Change Process
+## API Breaking Change Process
 
 Breaking Change Steps:
 1. Check Customer Visible Public API status
@@ -634,7 +431,7 @@ Best Practices:
 - Document all changes thoroughly
 - Coordinate with dependent services
 
-# Customer Visible Public API Guidelines
+## Customer Visible Public API Guidelines
 
 Public API Scope:
 - Only expose carefully selected subset of APIs to customers
@@ -665,84 +462,62 @@ Best Practices:
 - Monitor API usage during deprecation
 - Plan for smooth customer transitions
 
-# Temporal Workflow Guidelines
+# Infrastructure
 
-Preparation:
-- Model workflow before implementation using:
-  - Activity diagrams
-  - State machine diagrams
-- Complete necessary refactoring before workflow implementation
-- Prepare testing environment:
-  - Required configurations
-  - System dependencies
-  - Test stubs
-  - Setup scripts
-- Practice Python asyncio before starting
+## Database Persistence Guidelines
 
-Best Practices:
-- Document all workflow states and transitions
-- Keep workflows focused and single-purpose
-- Handle error cases and retries explicitly
-- Consider long-running implications
-- Plan for versioning and updates
-- Test workflow resilience
+Infrastructure Requirements:
+- One database server per environment/cluster
+- No root user access for database operations
+- One database per service with dedicated user
+- Special cases may use separate servers (e.g., Hermes, Keycloak)
+- Use DATABASE_DSN environment variable for credentials
+- Service access limited to its own database
 
-Implementation Tips:
-- Start with clear workflow boundaries
-- Break complex workflows into smaller activities
-- Handle timeouts and retries at activity level
-- Use compensation logic for rollbacks
-- Consider workflow versioning strategy
-- Implement proper error handling
-- Monitor workflow progress
+Database Setup Process:
+1. Connect using postgres user via EC2 instance
+2. Create database: `CREATE DATABASE <databasename>;`
+3. Generate secure 32-char password
+4. Create user: `CREATE USER <databasename>user WITH PASSWORD '<password>';`
+5. Grant privileges: `GRANT ALL PRIVILEGES ON DATABASE <databasename> TO <databaseuser>;`
+6. Store credentials in AWS Secrets Manager
+7. Create Kubernetes secret for database DSN
+8. Scale down EC2 instance after setup
 
-# Testing Guidelines
+Environment-Specific Guidelines:
+DEV:
+- Use dev/db-cluster credentials
+- Store secrets as dev/db-cluster/<databasename>
+- Configure in dev environment namespace
 
-Framework and Location:
-- Use unittest and pytest for testing
-- Place unit tests in `test/unittest` with one test file per application file
-- Place integration tests in `test/integrationtest`
-- Follow naming convention: `<What>TestCase.test_<expectation>_<condition>()` or `test_<what>_<expectation>_<condition>()`
+PROD:
+- Use prod/db-cluster/postgres credentials
+- Store secrets as prod/db-cluster/<databasename>
+- Follow strict security protocols
 
-Testing Purpose:
-- Enforce good code architecture through explicit dependencies
-- Enable safe refactoring with backwards compatibility checks
-- Identify hidden dependencies through failing tests
-- Guard against unknown edge cases and potential failures
+Read-Only User Setup:
+```sql
+-- Create read-only user
+CREATE USER <databasename>user_read WITH PASSWORD '<password>';
 
-Test Coverage:
-Unit Tests:
-- Focus on complex business logic with multiple cases
-- Test happy paths and edge cases for critical functionality
-- Skip trivial code (simple constructors, getters/setters)
-- Add test cases for discovered bugs
-- Keep tests focused with single assertions when possible
+-- Grant current table access
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO <databasename>user_read;
 
-Integration Tests:
-- Test module interactions and dependencies
-- Cover happy path scenarios at minimum
-- Verify system behavior as a whole
+-- Grant future table access
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+   GRANT SELECT ON TABLES TO <databasename>user_read;
+```
 
 Best Practices:
-- Write short, focused tests for single behaviors
-- Mock dependencies for controlled testing
-- Trust built-in functions and test only integration points
-- Test functionality, not implementation details
-- Use plain values or fixtures for test data
-- Place reusable test utilities in `test/utils`
-- Use fixtures or setUp/tearDown for common dependencies
-- Create test-specific data within test functions
-- Avoid assertions in helper functions unless they're assertion helpers
+- Use alembic for schema management
+- Implement proper seeding through migrations
+- Follow principle of least privilege
+- Maintain separate credentials per environment
+- Document database access patterns
+- Regular credential rotation
+- Monitor database access and usage
 
-Test Structure:
-- Follow naming patterns:
-  - Classes: `<...>TestCase` or `Test<...>`
-  - Functions: `test_<what>_<expectation>_<condition>`
-    - `<what>`: tested function (optional if clear from scope)
-    - `<expectation>`: expected result (required)
-    - `<condition>`: test scenario (optional for happy path)
-
-# GitLab CI Guidelines
+## GitLab CI Guidelines
 
 Pipeline Structure:
 - Define CI pipelines in `.gitlab-ci.yaml`
@@ -826,7 +601,9 @@ Best Practices:
 - Maintain clear stage separation
 - Use appropriate test coverage
 
-# README.md Structure
+# Documentation Guidelines
+
+## README.md Structure
 
 Name and Description:
 - Use short, purpose-focused description
@@ -900,3 +677,49 @@ Additional Sections:
    - Logging
    - Backup procedures
    - Troubleshooting
+
+## Testing Guidelines
+
+Framework and Location:
+- Use unittest and pytest for testing
+- Place unit tests in `test/unittest` with one test file per application file
+- Place integration tests in `test/integrationtest`
+- Follow naming convention: `<What>TestCase.test_<expectation>_<condition>()` or `test_<what>_<expectation>_<condition>()`
+
+Testing Purpose:
+- Enforce good code architecture through explicit dependencies
+- Enable safe refactoring with backwards compatibility checks
+- Identify hidden dependencies through failing tests
+- Guard against unknown edge cases and potential failures
+
+Test Coverage:
+Unit Tests:
+- Focus on complex business logic with multiple cases
+- Test happy paths and edge cases for critical functionality
+- Skip trivial code (simple constructors, getters/setters)
+- Add test cases for discovered bugs
+- Keep tests focused with single assertions when possible
+
+Integration Tests:
+- Test module interactions and dependencies
+- Cover happy path scenarios at minimum
+- Verify system behavior as a whole
+
+Best Practices:
+- Write short, focused tests for single behaviors
+- Mock dependencies for controlled testing
+- Trust built-in functions and test only integration points
+- Test functionality, not implementation details
+- Use plain values or fixtures for test data
+- Place reusable test utilities in `test/utils`
+- Use fixtures or setUp/tearDown for common dependencies
+- Create test-specific data within test functions
+- Avoid assertions in helper functions unless they're assertion helpers
+
+Test Structure:
+- Follow naming patterns:
+  - Classes: `<...>TestCase` or `Test<...>`
+  - Functions: `test_<what>_<expectation>_<condition>`
+    - `<what>`: tested function (optional if clear from scope)
+    - `<expectation>`: expected result (required)
+    - `<condition>`: test scenario (optional for happy path)
